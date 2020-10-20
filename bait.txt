@@ -109,7 +109,6 @@ class GitHubPublisher:
         }
         # file_content = await self.get_content(file)
         content["sha"] = "582b02baab5601d86ac6b6831af91d1100a8b53c"
-        import pdb;pdb.set_trace()
         url = f"https://api.github.com/repos/{quote(self._username)}/{quote(repository)}/contents/{quote(filename)}"
         await self.fetch(HTTPRequest(url, "DELETE", {
             "Content-Type": "application/json"
@@ -118,10 +117,12 @@ class GitHubPublisher:
     async def get(self, repository: str, filepath: str):
         if self._username is None:
             await self.verify_token()
-        import pdb; pdb.set_trace()
         url = f"https://api.github.com/repos/{quote(self._username)}/{quote(repository)}/contents/{quote(filepath)}"
         try:
-            return await self.fetch(HTTPRequest(url, "GET", {"Content-Type": "application/json"}))
+            result = await self.fetch(HTTPRequest(url, "GET", {"Content-Type": "application/json"}))
+            import time
+            time.sleep(2)
+            return result
         except FileNotFoundError:
             return None
 
@@ -130,7 +131,7 @@ class GitHubPublisher:
         """发布文件至 GitHub"""
         if self._username is None:
             await self.verify_token()
-        import pdb; pdb.set_trace()
+
         content = {
             "message": message,
             "committer": {
@@ -160,7 +161,6 @@ class GitHubPublisher:
             "User-Agent": "dbappsecurity",
             "Authorization": f"token {self._token}"
         }
-#         import pdb; pdb.set_trace()
         for key, value in default_headers.items():
             if key not in request.headers:
                 request.headers[key] = value
@@ -181,7 +181,7 @@ class GitHubPublisher:
 
 
 async def main() -> None:
-    publisher = GitHubPublisher("490fa4dc3c4ba2cd8b542b6076f303e03df8935a", "super1-chen")
+    publisher = GitHubPublisher("b07ff00957db5c6f18352537e04a77c86bf1b316", "super1-chen")
 
     await publisher.verify_token()
     # async with aopen("test.txt", "rb") as file:
