@@ -50,7 +50,7 @@ class GitHubPublisher:
     async def verify_token(self) -> bool:
         """确认 Token 是否有效"""
         response = await self.fetch(HTTPRequest("https://api.github.com/user", "GET"))
-
+        print("verify token")
         if self._username is None:
             self._username = response["login"]
 
@@ -156,6 +156,7 @@ class GitHubPublisher:
 
     async def fetch(self, request: HTTPRequest) -> Dict[str, Any]:
         """请求 GitHub API接口"""
+        print("fetch", request.url)
         default_headers = {
             "Accept": "application/json",
             "User-Agent": "dbappsecurity",
@@ -181,7 +182,7 @@ class GitHubPublisher:
 
 
 async def main() -> None:
-    publisher = GitHubPublisher("b07ff00957db5c6f18352537e04a77c86bf1b316", "super1-chen")
+    publisher = GitHubPublisher("51a165641e33433a658f2da20e9ae9ab7d951c67", "super1-chen")
 
     await publisher.verify_token()
     # async with aopen("test.txt", "rb") as file:
