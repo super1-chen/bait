@@ -181,7 +181,7 @@ class GitHubPublisher:
 
 
 async def main() -> None:
-    publisher = GitHubPublisher("321d797fd70f923e6b67b0e1a96e4b9940effb4d", "super1-chen")
+    publisher = GitHubPublisher("f3102daf92d2d06d8e1962ab2e65414b5e25bc02", "super1-chen")
 
     await publisher.verify_token()
     # async with aopen("test.txt", "rb") as file:
