@@ -1,78 +1,46 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-# Create by Albert_Chen
-# CopyRight (py) 2019年 陈超. All rights reserved by Chao.Chen.
-# Create on 2019-01-02
+var express = require('express');
+var path = require('path');
+var favicon = require('serve-favicon');
+var logger = require('morgan');
+var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
 
+var index = require('./routes/index');
+var users = require('./routes/users');
 
-# The server or gateway invokes the application callable once for each request it receives from an HTTP client,
-# that is directed at the application. To illustrate, here is a simple CGI gateway,
-# implemented as a function taking an application object. Note that this simple example has limited error handling,
-# because by default an uncaught exception will be dumped to sys.stderr and logged by the web server.
+var app = express();
 
-import os, sys
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
 
+// uncomment after placing your favicon in /public
+//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
 
-def run_with_cig(application):
+app.use('/', index);
+app.use('/users', users);
 
-    environ = dict(os.environ.items())
-    environ["wsgi.input"] = sys.stdin
-    environ["wsgi.errors"] = sys.stderr
-    environ["wsgi.version"] = (1, 0)
-    environ["wsgi.multithread"] = False
-    environ["wsgi.multiprocesss"] = True
-    environ["wsgi.run_once"] = True
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  var err = new Error('Not Found');
+  err.status = 404;
+  next(err);
+});
 
-    if environ.get("HTTPS", "off") in ("on", "1"):
-        environ["wsgi.url_schema"] = "https"
-    else:
-        environ["wsgi.url_schema"] = "http"
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
 
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
 
-    headers_set = []
-    headers_sent = []
-
-    def write(data):
-        if not headers_set:
-            raise AssertionError("Write() before start_response()")
-
-        elif not headers_sent:
-            # Before the first output, send the stored headers status
-            status, response_headers = headers_sent[:] = headers_set
-            sys.stdout.write("Status: %s\r\n", status)
-            for header in response_headers:
-                sys.stdout.write("%s: %s\r\n", header)
-            sys.stdout.write("\r\n")
-
-        sys.stdout.write(data)
-        sys.stdout.flush()
-
-
-    def start_response(status, response_headers, exc_info=None):
-        if exc_info:
-            try:
-                if headers_sent:
-                    raise exc_info[0], exc_info[1], exc_info[2]
-
-            finally:
-                exc_info = None
-
-        elif headers_set:
-            raise AssertionError("Headers already set!")
-
-        headers_set[:] = [status, response_headers]
-        return write
-
-    result = application(environ, start_response)
-
-    try:
-        for data in result:
-            if data:
-                write(data)
-            if not headers_sent:
-                write("") # send headers now if body was empty
-    finally:
-        if hasattr(result, "close"):
-            result.close()
-
-
+module.exports = app;
